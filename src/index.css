@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+* {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont,
+        'Segoe UI', sans-serif;
+}
+
+body {
+    background-color: #F4F5F7;
+    color: #111827;
+}
+
+/* Scrollbar nhỏ gọn */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 99px;
+}
+
+/* react-calendar override sang theme sáng */
+.react-calendar {
+    border: none !important;
+    background: #fff !important;
+    font-family: inherit !important;
+    width: 320px !important;
+    padding: 12px !important;
+}
+
+.react-calendar__tile {
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    color: #111827 !important;
+}
+
+.react-calendar__tile--active {
+    background: #F97316 !important;
+    color: #fff !important;
+}
+
+.react-calendar__tile--now {
+    background: #FFF7ED !important;
+    color: #F97316 !important;
+    font-weight: 700 !important;
+}
+
+.react-calendar__tile:hover {
+    background: #FFF7ED !important;
+}
+
+.react-calendar__navigation button {
+    color: #111827 !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    border-radius: 8px !important;
+}
+
+.react-calendar__navigation button:hover {
+    background: #F3F4F6 !important;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+    color: #9CA3AF !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+    text-decoration: none !important;
+}
