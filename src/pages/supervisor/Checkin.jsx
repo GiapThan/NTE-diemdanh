@@ -13,7 +13,15 @@ import toast from "react-hot-toast"
 import Navbar from "../../components/Navbar"
 import ScheduleCard from "../../components/ScheduleCard"
 
+const LATE_REASONS = [
+    "Lỗi mạng, không điểm danh đúng giờ được",
+    "Bận công việc khác",
+    "Quên điểm danh",
+    "Khác (nhập lý do)"
+]
+
 export default function SupervisorCheckin() {
+
     const { currentUser } = useAuth()
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [showCalendar, setShowCalendar] = useState(false)
@@ -23,6 +31,8 @@ export default function SupervisorCheckin() {
     // Hộp thoại nhập giờ thủ công
     const [dialog, setDialog] = useState(null) // schedule object
     const [manualTime, setManualTime] = useState("")
+    const [lateReason, setLateReason] = useState(LATE_REASONS[0])
+    const [customReason, setCustomReason] = useState("")
     const [confirming, setConfirming] = useState(null)
 
     const dateStr = format(selectedDate, "yyyy-MM-dd")
@@ -51,6 +61,8 @@ export default function SupervisorCheckin() {
     function handleCheckin(schedule, isLate) {
         if (isLate) {
             setManualTime(schedule.startTime)
+            setLateReason(LATE_REASONS[0])
+            setCustomReason("")
             setDialog(schedule)
         } else {
             setConfirming(schedule.id)
@@ -66,7 +78,10 @@ export default function SupervisorCheckin() {
         setConfirming(null)
     }
 
-    async function submitCheckin(schedule, overrideTime) {
+    async function submitCheckin(schedule, overrideTime, reasonText) {
+        if (overrideTime && !reasonText?.trim()) {
+            return toast.error("Vui lòng nhập lý do điểm danh trễ")
+        }
         try {
             let checkInTimestamp
 
@@ -98,7 +113,7 @@ export default function SupervisorCheckin() {
             await updateDoc(doc(db, "schedules", schedule.id), {
                 supervisorCheckedIn: true,
                 checkInTime: checkInTimestamp,
-                checkInNote: overrideTime ? `Nhập thủ công: ${overrideTime}` : "",
+                checkInNote: overrideTime ? reasonText.trim() : "",
                 recordedBy: currentUser.uid,
                 lateMinutes,
                 isLate: lateMinutes > 0
@@ -184,35 +199,68 @@ export default function SupervisorCheckin() {
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm
                         flex items-center justify-center z-50 p-4">
                     <div className="bg-white border border-gray-200 rounded-2xl
-                          p-6 w-full max-w-sm shadow-2xl">
+                p-6 w-full max-w-sm shadow-2xl">
                         <h3 className="text-gray-800 font-bold text-lg mb-1">
-                            Nhập giờ điểm danh
+                            Nhập giờ điểm danh trễ
                         </h3>
-                        <p className="text-gray-800 text-sm mb-4">
+                        <p className="text-gray-400 text-sm mb-4">
                             {dialog.teacherName} — {dialog.className}
                         </p>
-                        <label className="text-gray-800/70 text-sm block mb-2">
+                        <label className="text-gray-600 text-sm block mb-1.5">
                             Giờ giáo viên đến lớp
                         </label>
                         <input
                             type="time"
                             value={manualTime}
                             onChange={e => setManualTime(e.target.value)}
-                            className="w-full bg-gray-100 border border-white/20 rounded-xl
-                         px-4 py-3 text-gray-800 text-base outline-none mb-4"
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl
+             px-4 py-3 text-gray-800 text-base outline-none
+             focus:border-orange-400 mb-4"
                         />
+
+                        <label className="text-gray-600 text-sm block mb-1.5">
+                            Lý do điểm danh trễ
+                        </label>
+                        <select
+                            value={lateReason}
+                            onChange={e => setLateReason(e.target.value)}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl
+             px-4 py-3 text-gray-800 text-sm outline-none
+             focus:border-orange-400 mb-3"
+                        >
+                            {LATE_REASONS.map(r => (
+                                <option key={r} value={r}>{r}</option>
+                            ))}
+                        </select>
+
+                        {lateReason === "Khác (nhập lý do)" && (
+                            <input
+                                type="text"
+                                value={customReason}
+                                onChange={e => setCustomReason(e.target.value)}
+                                placeholder="Nhập lý do cụ thể..."
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl
+               px-4 py-3 text-gray-800 text-sm outline-none
+               placeholder-gray-400 focus:border-orange-400 mb-4"
+                            />
+                        )}
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setDialog(null)}
-                                className="flex-1 py-3 rounded-xl border border-white/20
-                           text-gray-800/60 hover:bg-white text-sm font-medium"
+                                className="flex-1 py-3 rounded-xl border border-gray-200
+             text-gray-500 hover:bg-gray-50 text-sm font-medium"
                             >
                                 Huỷ
                             </button>
                             <button
-                                onClick={() => submitCheckin(dialog, manualTime)}
+                                onClick={() => {
+                                    const reasonText = lateReason === "Khác (nhập lý do)"
+                                        ? customReason
+                                        : lateReason
+                                    submitCheckin(dialog, manualTime, reasonText)
+                                }}
                                 className="flex-1 py-3 rounded-xl bg-orange-500 hover:bg-orange-600
-                           text-gray-800 text-sm font-semibold transition-all"
+             text-white text-sm font-semibold transition-all"
                             >
                                 Xác nhận
                             </button>

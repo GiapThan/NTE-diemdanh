@@ -17,7 +17,9 @@ function getAccentColor(schedule) {
 export default function ScheduleCard({ schedule, role, onDone, onCheckin,
     isConfirming, onConfirm, onCancelConfirm }) {
     const now = new Date()
+    const dayStartDT = new Date(`${schedule.date}T00:00:00`)
     const endDT = new Date(`${schedule.date}T${schedule.endTime}:00`)
+    const isPastOrToday = !isAfter(dayStartDT, now)
     const deadline = new Date(
         parseISO(schedule.date).getFullYear(),
         parseISO(schedule.date).getMonth() + 1,
@@ -31,6 +33,7 @@ export default function ScheduleCard({ schedule, role, onDone, onCheckin,
         && isAfter(deadline, now)
 
     const afterEnd = isAfter(now, endDT)
+    const canCheckin = isPastOrToday
 
     return (
         <div className={`flex items-center gap-4 rounded-2xl border p-4
@@ -91,7 +94,7 @@ export default function ScheduleCard({ schedule, role, onDone, onCheckin,
             </div>
 
             {/* Nút hành động */}
-            <div className="flex-shrink-0">
+            <div className="flex flex-col items-end gap-1">
                 {/* Teacher: nút Done */}
                 {role === "teacher" && !schedule.teacherDoneAt && (
                     <div className="flex flex-col items-end gap-1">
@@ -132,10 +135,11 @@ export default function ScheduleCard({ schedule, role, onDone, onCheckin,
                             </button>
                         </div>
                     ) : (
-                        <button onClick={() => onCheckin(schedule, afterEnd)}
-                            className="px-3 py-2 rounded-xl text-sm font-semibold
-                 bg-orange-500 hover:bg-orange-600 text-white
-                 shadow-sm transition-all">
+                        <button onClick={() => canCheckin && onCheckin(schedule, afterEnd)}
+                            className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all
+      ${canCheckin
+                                    ? "bg-orange-500 hover:bg-orange-600 text-white shadow-sm"
+                                    : "bg-gray-100 text-gray-300 cursor-not-allowed"}`}>
                             Điểm danh
                         </button>
                     )
@@ -145,6 +149,9 @@ export default function ScheduleCard({ schedule, role, onDone, onCheckin,
                    bg-violet-50 px-3 py-1.5 rounded-xl">
                         ✓ Đã điểm danh
                     </span>
+                )}
+                {role === "supervisor" && !schedule.supervisorCheckedIn && !canCheckin && (
+                    <span className="text-xs text-gray-400">Chưa đến ngày học</span>
                 )}
             </div>
         </div>

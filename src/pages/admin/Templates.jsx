@@ -122,7 +122,7 @@ export default function AdminTemplates() {
             teacherId: form.teacherId,
             teacherName: teacher.displayName,
             teacherCode: teacher.teacherCode,
-            className: form.className.trim(),
+            className: form.className.trim().toUpperCase(),
             subject: form.subject.trim(),
             room: form.room.trim(),
             effectiveFrom: form.effectiveFrom,
@@ -282,11 +282,11 @@ export default function AdminTemplates() {
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-gray-600 text-xs">Tên lớp</label>
                                     <input value={form.className}
-                                        onChange={e => setForm({ ...form, className: e.target.value })}
-                                        placeholder="12A1" required
+                                        onChange={e => setForm({ ...form, className: e.target.value.toUpperCase() })}
+                                        placeholder="12A2" required
                                         className="bg-gray-50 border border-gray-200 rounded-xl
-                               px-3 py-2.5 text-gray-800 text-sm outline-none
-                               placeholder-gray-400 focus:border-orange-400" />
+             px-3 py-2.5 text-gray-800 text-sm outline-none
+             placeholder-gray-400 focus:border-orange-400" />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-gray-600 text-xs">Phòng</label>

@@ -127,7 +127,7 @@ export default function AdminSchedules() {
                         teacherId: tpl.teacherId,
                         teacherName: tpl.teacherName,
                         teacherCode: tpl.teacherCode,
-                        className: tpl.className,
+                        className: (tpl.className || "").toUpperCase(),
                         subject: tpl.subject,
                         room: tpl.room,
                         date: dateStr,
@@ -243,7 +243,7 @@ export default function AdminSchedules() {
                 teacherId: teacher.id,
                 teacherName: teacher.displayName,
                 teacherCode: teacher.teacherCode,
-                className: form.className,
+                className: form.className.trim().toUpperCase(),
                 subject: form.subject,
                 room: form.room,
                 date: form.date,
@@ -727,10 +727,10 @@ export default function AdminSchedules() {
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-gray-800 text-xs">Lớp</label>
                                     <input value={form.className} placeholder="12A1" required
-                                        onChange={e => setForm({ ...form, className: e.target.value })}
-                                        className="bg-gray-100 border border-white/15 rounded-xl
-                               px-3 py-2.5 text-gray-800 text-sm outline-none
-                               placeholder-white/30" />
+                                        onChange={e => setForm({ ...form, className: e.target.value.toUpperCase() })}
+                                        className="bg-gray-50 border border-gray-200 rounded-xl
+             px-3 py-2.5 text-gray-800 text-sm outline-none
+             placeholder-gray-400 focus:border-orange-400" />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-gray-800 text-xs">Phòng</label>
