@@ -7,6 +7,7 @@ import * as XLSX from "xlsx"
 import { saveAs } from "file-saver"
 import toast from "react-hot-toast"
 import Navbar from "../../components/Navbar"
+import MiniCalendar from "../../components/MiniCalendar"
 
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1)
 
@@ -348,13 +349,15 @@ export default function AdminReports() {
                             </div>
                         ) : (
                             <div className="flex flex-col gap-6">
-                                <DetailSection
+                                            <DetailSection
                                                 title="Lớp chính thức"
                                                 badgeColor="bg-blue-50 text-blue-600"
                                                 list={officialList}
                                                 userMap={userMap}
                                                 groupByClass
-                                />
+                                                month={month}
+                                                year={year}
+                                            />
                                 <DetailSection
                                     title="Lớp tăng cường"
                                     badgeColor="bg-amber-50 text-amber-600"
@@ -378,7 +381,8 @@ export default function AdminReports() {
 }
 
 // ── Component hiển thị 1 nhóm (chính thức / tăng cường / hỗ trợ) ──
-function DetailSection({ title, badgeColor, list, userMap, showOriginal, groupByClass }) {
+function DetailSection({ title, badgeColor, list, userMap, showOriginal,
+    groupByClass, month, year }) {
     // Nếu groupByClass: nhóm theo tên lớp, sắp xếp theo tên lớp
     const groups = groupByClass
         ? Object.entries(
@@ -413,13 +417,20 @@ function DetailSection({ title, badgeColor, list, userMap, showOriginal, groupBy
                             {/* Header tên lớp — chỉ hiện khi groupByClass */}
                             {groupByClass && (
                                 <div className="flex items-center justify-between
-                                bg-gray-50 px-4 py-2.5 border-b border-gray-200">
+                  bg-gray-50 px-4 py-2.5 border-b border-gray-200">
                                     <span className="text-gray-800 font-semibold text-sm">
                                         {className}
                                     </span>
-                                    <span className="text-gray-800 font-semibold text-sm text-red-500">
+                                    <span className="text-xs text-gray-400">
                                         {rows.length} buổi
                                     </span>
+                                </div>
+                            )}
+
+                            {groupByClass && month && year && (
+                                <div className="p-4 border-b border-gray-200 flex justify-center
+                  md:justify-start">
+                                    <MiniCalendar schedulesInClass={rows} month={month} year={year} />
                                 </div>
                             )}
 

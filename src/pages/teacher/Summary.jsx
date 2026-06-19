@@ -6,6 +6,7 @@ import { format, parseISO } from "date-fns"
 import { vi } from "date-fns/locale"
 import toast from "react-hot-toast"
 import Navbar from "../../components/Navbar"
+import MiniCalendar from "../../components/MiniCalendar"
 
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1)
 
@@ -123,22 +124,28 @@ export default function TeacherSummary() {
                                         </div>
                                     ) : (
                                         <div className="flex flex-col gap-4">
-                                            {officialGroups.map(([className, rows]) => (
-                                                <div key={className}
-                                                    className="rounded-2xl border border-gray-200 bg-white
-                                        shadow-sm overflow-hidden">
-                                                    <div className="flex items-center justify-between
-                                          bg-gray-50 px-4 py-2.5 border-b border-gray-200">
-                                                        <span className="text-gray-800 font-semibold text-sm">
-                                                            {className}
-                                                        </span>
-                                                        <span className="text-xs text-gray-400">
-                                                            {rows.length} buổi
-                                                        </span>
-                                                    </div>
-                                                    <SessionTable rows={rows} />
-                                                </div>
-                                            ))}
+                                                        {officialGroups.map(([className, rows]) => (
+                                                            <div key={className}
+                                                                className="rounded-2xl border border-gray-200 bg-white
+                  shadow-sm overflow-hidden">
+                                                                <div className="flex items-center justify-between
+                    bg-gray-50 px-4 py-2.5 border-b border-gray-200">
+                                                                    <span className="text-gray-800 font-semibold text-sm">
+                                                                        {className}
+                                                                    </span>
+                                                                    <span className="text-xs text-gray-400">
+                                                                        {rows.length} buổi
+                                                                    </span>
+                                                                </div>
+
+                                                                <div className="p-4 border-b border-gray-200 flex justify-center
+                    md:justify-start">
+                                                                    <MiniCalendar schedulesInClass={rows} month={month} year={year} />
+                                                                </div>
+
+                                                                <SessionTable rows={rows} />
+                                                            </div>
+                                                        ))}
                                         </div>
                                     )}
                                 </div>
