@@ -118,6 +118,9 @@ export default function AdminReports() {
     const officialList = teacherSchedules.filter(s => s.type === "regular" || s.type === "makeup")
     const extraList = teacherSchedules.filter(s => s.type === "extra")
     const supportList = teacherSchedules.filter(s => s.type === "support")
+    const substitutedAwayList = schedules.filter(s =>
+        s.originalTeacherId === selectedTeacherId && s.isSubstituted
+    )
 
     // ── Xuất Excel: trang 1 = tổng hợp, các trang sau = chi tiết từng GV ──
     function exportExcel() {
@@ -357,6 +360,7 @@ export default function AdminReports() {
                                                 groupByClass
                                                 month={month}
                                                 year={year}
+                                                substitutedAway={substitutedAwayList}
                                             />
                                 <DetailSection
                                     title="Lớp tăng cường"
@@ -382,15 +386,19 @@ export default function AdminReports() {
 
 // ── Component hiển thị 1 nhóm (chính thức / tăng cường / hỗ trợ) ──
 function DetailSection({ title, badgeColor, list, userMap, showOriginal,
-    groupByClass, month, year }) {
+    groupByClass, month, year, substitutedAway = [] }) {
     // Nếu groupByClass: nhóm theo tên lớp, sắp xếp theo tên lớp
+    const classMap = {}
+    list.forEach(s => {
+        (classMap[s.className] = classMap[s.className] || []).push(s)
+    })
+    // Đảm bảo lớp có buổi bị thay cũng xuất hiện (kể cả khi 0 buổi còn lại)
+    substitutedAway.forEach(s => {
+        if (!classMap[s.className]) classMap[s.className] = []
+    })
+
     const groups = groupByClass
-        ? Object.entries(
-            list.reduce((acc, s) => {
-                (acc[s.className] = acc[s.className] || []).push(s)
-                return acc
-            }, {})
-        ).sort(([a], [b]) => a.localeCompare(b))
+        ? Object.entries(classMap).sort(([a], [b]) => a.localeCompare(b))
         : [[null, list]]
 
     return (
@@ -416,12 +424,12 @@ function DetailSection({ title, badgeColor, list, userMap, showOriginal,
 
                             {/* Header tên lớp — chỉ hiện khi groupByClass */}
                             {groupByClass && (
-                                <div className="flex items-center justify-between
+                                <div className="flex items-center
                   bg-gray-50 px-4 py-2.5 border-b border-gray-200">
                                     <span className="text-gray-800 font-semibold text-sm">
-                                        {className}
+                                        Lớp {className}
                                     </span>
-                                    <span className="text-xs text-gray-400">
+                                    <span className="text-sm font-semibold ml-2 text-red-500">
                                         {rows.length} buổi
                                     </span>
                                 </div>
@@ -430,7 +438,12 @@ function DetailSection({ title, badgeColor, list, userMap, showOriginal,
                             {groupByClass && month && year && (
                                 <div className="p-4 border-b border-gray-200 flex justify-center
                   md:justify-start">
-                                    <MiniCalendar schedulesInClass={rows} month={month} year={year} />
+                                    <MiniCalendar
+                                        schedulesInClass={rows}
+                                        substitutedAway={substitutedAway.filter(s => s.className === className)}
+                                        month={month}
+                                        year={year}
+                                    />
                                 </div>
                             )}
 
